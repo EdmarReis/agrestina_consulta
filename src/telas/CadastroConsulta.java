@@ -2,6 +2,7 @@ package telas;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.Image;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -61,13 +62,14 @@ public class CadastroConsulta extends JFrame {
 	private MaskFormatter mascaraCpf;
 	private MaskFormatter mascaraCelular;
 	private JTable tblProdutos;
-	private JTextField txtIdProduto;
 	private JTextField txtIdCliente;
 	private JTable tblClientes;
 	
 	Connection conexao = null;
 	PreparedStatement pst = null;
 	ResultSet rs = null;
+	
+	JLabel lblFoto = new JLabel("Foto");
 	
 
 	/**
@@ -159,7 +161,7 @@ public class CadastroConsulta extends JFrame {
 		});
 		
 		produto.setColumns(10);
-		produto.setBounds(103, 6, 180, 26);
+		produto.setBounds(103, 6, 307, 26);
 		panel_1.add(produto);
 		
 		JLabel lblQuantidade = new JLabel("Código");
@@ -196,7 +198,6 @@ public class CadastroConsulta extends JFrame {
 		JButton btnPesquisarProduto = new JButton("");
 		btnPesquisarProduto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				pesquisarProduto();
 				
 			}
 		});
@@ -216,44 +217,34 @@ public class CadastroConsulta extends JFrame {
 			
 			
 			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				pesquisarProduto();
+			}
 		});
 		codigo.setColumns(10);
 		codigo.setBounds(103, 47, 307, 26);
 		panel_1.add(codigo);
 		
 		unidade = new JComboBox();
-		unidade.setModel(new DefaultComboBoxModel(new String[] {"Kilo", "Unidade", "Saco", "Gramas", "Pote", "Duzia", "Litro"}));
+		unidade.setModel(new DefaultComboBoxModel(new String[] {"Kilo", "Unidade", "Saco", "Gramas", "Pote", "Duzia", "Litro", "ml"}));
 		unidade.setBounds(103, 91, 307, 27);
 		panel_1.add(unidade);
 		
 		//evento mouse clicked, quando seleciona linha da tabela, preenche os campos automaticamente
 		tblProdutos = new JTable();
 		tblProdutos.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				setCamposProdutos();
-			}
+	
 		});
 		
 		tblProdutos.setBounds(16, 309, 595, 98);
 		panel_1.add(tblProdutos);
 		
-		JLabel lblIdProduto = new JLabel("Id");
-		lblIdProduto.setBounds(295, 11, 61, 16);
-		panel_1.add(lblIdProduto);
-		
-		txtIdProduto = new JTextField();
-		txtIdProduto.setEnabled(false);
-		txtIdProduto.setEditable(false);
-		txtIdProduto.setColumns(10);
-		txtIdProduto.setBounds(318, 6, 92, 26);
-		panel_1.add(txtIdProduto);
-		
 		JDesktopPane desktopPane = new JDesktopPane();
 		desktopPane.setBounds(383, 44, 1, 1);
 		panel_1.add(desktopPane);
 		
-		JLabel lblFoto = new JLabel("Foto");
+		//JLabel lblFoto = new JLabel("Foto");
 		lblFoto.setForeground(Color.BLACK);
 		lblFoto.setBackground(Color.RED);
 		lblFoto.setBounds(422, 11, 189, 185);
@@ -382,44 +373,6 @@ public class CadastroConsulta extends JFrame {
 		panel.add(tblClientes);
 	}
 
-	private void excluirProduto() {
-		String sql = "delete from produtos where id = ?";
-		try {
-			pst = conexao.prepareStatement(sql);
-			pst.setString(1, txtIdProduto.getText());
-			boolean alteracao = pst.execute();
-			JOptionPane.showMessageDialog(null, "O Produto com Id "+txtIdProduto.getText()+" foi excluído.","Aviso",JOptionPane.INFORMATION_MESSAGE);
-			//System.out.println(alteracao);
-		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, e);
-		}
-	}
-	
-	private void alterarProduto() {
-		String sql = "update produtos set codigo = ?, preco = ?, nome = ?, descricao = ?, unidade = ? where id = ?";
-		try {
-			pst = conexao.prepareStatement(sql);
-			pst.setString(1, codigo.getText());
-			pst.setString(2, preco.getText());
-			pst.setString(3, produto.getText());
-			pst.setString(4, descricao.getText());
-			pst.setString(5, (String) unidade.getSelectedItem());
-			pst.setString(6, txtIdProduto.getText());
-			int alteracao = pst.executeUpdate();
-			//System.out.println(alteracao);
-			
-			if(alteracao > 0) {
-				JOptionPane.showMessageDialog(null, "Alteração realizada com sucesso");
-				pesquisarProduto();
-			}else {
-				JOptionPane.showMessageDialog(null, "Nenhuma alteração foi realizada.","Aviso",JOptionPane.WARNING_MESSAGE);
-			}
-			
-		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, e);
-		}
-	}
-
 	//metodo para preencher automaticamente a jtable com like do que for digitado no campo produto - funciona junto com o evento de key do campo produto
 	private void pesquisarProduto() {
 		String sql = "select * from produtos where codigo = ?";
@@ -428,11 +381,21 @@ public class CadastroConsulta extends JFrame {
 			pst.setString(1, codigo.getText());
 			rs = pst.executeQuery();
 			
-			if(rs.next()) {
-				JOptionPane.showMessageDialog(null, "Entrou aqui");
+			if(rs.first()) {
+				//JOptionPane.showMessageDialog(null, "Entrou aqui");
+				produto.setText(rs.getString("nome"));
+				preco.setText(rs.getString("preco"));
+				descricao.setText(rs.getString("descricao"));
+				unidade.setSelectedItem(rs.getString("unidade"));
+				
+				ImageIcon imageIcon = new ImageIcon(new ImageIcon("/Users/edmar_sr/Desktop/Edmar/Programacao/Java/Agrestina/imagensProdutos/"+rs.getString("foto")+".png").getImage().getScaledInstance(140, 140, Image.SCALE_DEFAULT));
+				lblFoto.setIcon(imageIcon);
+				
 				
 			}else {
-				JOptionPane.showMessageDialog(null, "Nao entrou ");
+				//JOptionPane.showMessageDialog(null, "Nao entrou ");
+				limpaTelaProdutoMantemCodigo();
+				produto.setText(null);
 			}
 			//tblProdutos.setModel(DbUtils.resultSetToTableModel(rs));
 			
@@ -442,23 +405,19 @@ public class CadastroConsulta extends JFrame {
 		
 	}
 	
-	//metodo para preencher automaticamente os campos quando selecionada a linha na tabela - funciona junto com o evento de click do mouise na jtable
-	private void setCamposProdutos() {
-		int setar = tblProdutos.getSelectedRow();
-		produto.setText(tblProdutos.getModel().getValueAt(setar, 1).toString());
-		codigo.setText(tblProdutos.getModel().getValueAt(setar, 2).toString());
-		preco.setText(tblProdutos.getModel().getValueAt(setar, 3).toString());
-		descricao.setText(tblProdutos.getModel().getValueAt(setar, 5).toString());
-		unidade.setSelectedItem(tblProdutos.getModel().getValueAt(setar, 4).toString());
-		txtIdProduto.setText(tblProdutos.getModel().getValueAt(setar, 0).toString());
-	}
-
 	private void limpaTelaProduto() {
 		produto.setText(null);
 		preco.setText(null);
 		codigo.setText(null);
 		descricao.setText(null);
-		txtIdProduto.setText(null);
+		lblFoto.setIcon(null);
+	}
+	
+	private void limpaTelaProdutoMantemCodigo() {
+		produto.setText(null);
+		preco.setText(null);
+		descricao.setText(null);
+		lblFoto.setIcon(null);
 	}
 
 	
