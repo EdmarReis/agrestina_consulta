@@ -430,6 +430,7 @@ public class CadastroConsulta extends JFrame {
 			
 			if(rs.next()) {
 				JOptionPane.showMessageDialog(null, "Entrou aqui");
+				
 			}else {
 				JOptionPane.showMessageDialog(null, "Nao entrou ");
 			}
