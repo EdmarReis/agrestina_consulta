@@ -153,6 +153,8 @@ public class CadastroConsulta extends JFrame {
 		
 		//Evento para preencher a tabela digitando em tempo real
 		produto = new JTextField();
+		produto.setEnabled(false);
+		produto.setEditable(false);
 		produto.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
@@ -177,6 +179,8 @@ public class CadastroConsulta extends JFrame {
 		panel_1.add(lblPreco);
 		
 		preco = new JTextField();
+		preco.setEnabled(false);
+		preco.setEditable(false);
 		preco.setColumns(10);
 		preco.setBounds(103, 131, 307, 26);
 		panel_1.add(preco);
@@ -206,6 +210,8 @@ public class CadastroConsulta extends JFrame {
 		panel_1.add(btnPesquisarProduto);
 		
 		descricao = new JTextField();
+		descricao.setEnabled(false);
+		descricao.setEditable(false);
 		descricao.setColumns(10);
 		descricao.setBounds(103, 175, 307, 26);
 		panel_1.add(descricao);
@@ -227,6 +233,7 @@ public class CadastroConsulta extends JFrame {
 		panel_1.add(codigo);
 		
 		unidade = new JComboBox();
+		unidade.setEnabled(false);
 		unidade.setModel(new DefaultComboBoxModel(new String[] {"Kilo", "Unidade", "Saco", "Gramas", "Pote", "Duzia", "Litro", "ml"}));
 		unidade.setBounds(103, 91, 307, 27);
 		panel_1.add(unidade);
@@ -388,7 +395,7 @@ public class CadastroConsulta extends JFrame {
 				descricao.setText(rs.getString("descricao"));
 				unidade.setSelectedItem(rs.getString("unidade"));
 				
-				ImageIcon imageIcon = new ImageIcon(new ImageIcon("/Users/edmar_sr/Desktop/Edmar/Programacao/Java/Agrestina/imagensProdutos/"+rs.getString("foto")+".png").getImage().getScaledInstance(140, 140, Image.SCALE_DEFAULT));
+				ImageIcon imageIcon = new ImageIcon(new ImageIcon(rs.getString("foto")).getImage().getScaledInstance(140, 140, Image.SCALE_DEFAULT));
 				lblFoto.setIcon(imageIcon);
 				
 				
